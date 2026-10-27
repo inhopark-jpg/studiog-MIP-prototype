@@ -1,0 +1,121 @@
+/* Six pickup windows sharing the body height (Figma "container" 1:19626); scrolls on short screens */
+.slot-list {
+  flex: 1 1 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  padding: 56px 56px 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.slot {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 112px;
+  padding: 0 40px;
+  border: 3px solid var(--c-line-20);
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  color: var(--c-black);
+  text-align: left;
+}
+
+.slot.is-selected {
+  border: 4px solid var(--c-blue);
+  padding: 0 39px;
+  background: rgba(25, 65, 186, 0.05);
+}
+
+.slot__time {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+  white-space: nowrap;
+}
+
+.slot__note {
+  flex: 1;
+  font-size: 36px;
+  line-height: 1.3;
+  letter-spacing: -0.36px;
+}
+
+.slot__check {
+  flex-shrink: 0;
+  display: flex;
+}
+
+/* 이전 1/2 다음 */
+.slot-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 56px;
+}
+
+.slot-pager__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 160px;
+  padding: 20px 0;
+  border: 3px solid var(--c-line-40);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--c-black);
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.68px;
+}
+
+/* Not in the design: no page before the first / after the last */
+.slot-pager__btn:disabled {
+  opacity: 0.4;
+}
+
+.slot-pager__next-icon {
+  transform: rotate(180deg);
+}
+
+.slot-pager__count {
+  color: var(--c-black);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* 예약 정보 확인 popup: larger title, no line under it */
+.confirm-modal .modal-card__header {
+  border-bottom: 0;
+}
+
+.confirm-modal .modal-card__title {
+  font-size: 60px;
+  letter-spacing: -0.6px;
+}
+
+.confirm-modal__body {
+  display: flex;
+  flex-direction: column;
+  padding: 0 56px 56px;
+}
+
+.confirm-modal__notice {
+  padding: 40px 0;
+  color: var(--c-blue);
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.76px;
+  text-align: center;
+}

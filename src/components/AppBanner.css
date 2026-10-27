@@ -1,0 +1,36 @@
+.app-banner {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+}
+
+/* Figma 10:785: #242428 box over the baked-in Korean copy, text from x=248 */
+.app-banner__copy {
+  position: absolute;
+  left: 235px;
+  top: 52px;
+  width: 459px;
+  height: 142px;
+  background: #242428;
+  color: #ffffff;
+}
+
+.app-banner__title {
+  position: absolute;
+  left: 13px;
+  top: -8px;
+  width: 481px;
+  font-size: 46px;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.app-banner__subtitle {
+  position: absolute;
+  left: 13px;
+  top: 111px;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: normal;
+  white-space: nowrap;
+}

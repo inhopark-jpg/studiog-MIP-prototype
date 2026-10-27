@@ -1,0 +1,176 @@
+.transit-map {
+  position: relative;
+  flex: 1 1 549px;
+  min-height: 340px;
+}
+
+.transit-map__canvas {
+  position: absolute;
+  inset: 0;
+  background: #f2f1ee;
+  font-family: var(--font);
+}
+
+.transit-map .maplibregl-ctrl-attrib {
+  font-size: 14px;
+}
+
+/* 지도 컨트롤: 65×68, 7px 간격 */
+.transit-map__controls {
+  position: absolute;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.transit-map__controls button {
+  position: relative;
+  width: 65px;
+  height: 68px;
+  border: 1px solid var(--c-map-control-border);
+  background: var(--c-map-control-bg);
+}
+
+/* Icon offsets from Figma, measured from the box's outer edge minus the 1px border */
+.map-ctrl__h-line,
+.map-ctrl__v-line,
+.map-ctrl__locate {
+  position: absolute;
+}
+
+/* lines are 3px tall (thickened from Figma's 1px), so top is 1px higher to keep the same center */
+.map-ctrl__h-line {
+  left: 10px;
+  top: 31px;
+}
+
+.map-ctrl__v-line {
+  left: 11px;
+  top: 31px;
+  transform: rotate(90deg);
+}
+
+.map-ctrl__locate {
+  left: 15px;
+  top: 16px;
+}
+
+/* Markers */
+.map-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-pin__label {
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--c-marker-current);
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.28px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-btn);
+}
+
+.map-vehicle {
+  display: flex;
+  align-items: center;
+}
+
+/* Not in the design: a just-booked van pops in together with its DRT table row */
+.map-vehicle.is-new {
+  transform-origin: 50% 50%;
+  animation: map-vehicle-in 500ms cubic-bezier(0.3, 1.5, 0.5, 1) backwards; /* delay set inline */
+}
+
+/*
+ * 도착 marker (Figma 1:20371): blue bubble 12px above the pin (export 51.16×65.62, frame top
+ * at y=2), centered on the pin tip (x=23.58). Not in the design: it pops in when chosen.
+ */
+.map-dest {
+  position: relative;
+  width: 51.1592px;
+  height: 65.6186px;
+  transform-origin: 23.58px 55.71px;
+  animation: map-vehicle-in 450ms cubic-bezier(0.3, 1.5, 0.5, 1) backwards;
+}
+
+.map-dest__label {
+  position: absolute;
+  left: 23.58px;
+  bottom: calc(100% - 2px + 12px);
+  min-width: 150px;
+  padding: 8px 15px;
+  border: 2px solid #ffffff;
+  border-radius: 50px;
+  background: #1b8dcd;
+  color: #ffffff;
+  font-size: 45px;
+  font-weight: 600;
+  line-height: normal;
+  text-align: center;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  filter: drop-shadow(2px 4px 1.5px rgba(0, 0, 0, 0.3));
+}
+
+/* the label grows out of its van */
+.map-vehicle--tag.is-new {
+  transform-origin: -40px 50%;
+}
+
+@keyframes map-vehicle-in {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.map-vehicle__icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+}
+
+.map-vehicle__icon > * {
+  position: absolute;
+  left: -2px;
+  top: -10px;
+}
+
+
+.map-vehicle__label {
+  padding: 2px 14px;
+  border: 3px solid;
+  border-radius: 12px;
+  background: #ffffff;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.map-vehicle--drt .map-vehicle__label {
+  border-color: var(--c-drt);
+  color: #171819;
+}
+
+.map-vehicle--bus .map-vehicle__label {
+  border-color: var(--c-bus);
+  color: var(--c-bus);
+}
+
+.map-vehicle--bus-green .map-vehicle__label {
+  border-color: var(--c-bus-green);
+  color: var(--c-bus-green);
+}

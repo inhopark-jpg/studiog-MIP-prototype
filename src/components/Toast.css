@@ -1,0 +1,23 @@
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 260px;
+  z-index: 2000;
+  transform: translateX(-50%);
+  padding: 24px 40px;
+  border-radius: var(--radius-md);
+  background: rgba(23, 24, 25, 0.9);
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  animation: toast-in 0.18s ease-out;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+}

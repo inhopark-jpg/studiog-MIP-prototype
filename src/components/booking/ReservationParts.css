@@ -1,0 +1,121 @@
+/* 출발지 → 도착지 box (Figma "목적지") */
+.route-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 40px;
+  border: 3px solid var(--c-line-10);
+  border-radius: var(--radius-lg);
+  background: #f9f9fb;
+}
+
+.route-box--popup {
+  padding: 48px 40px;
+  border-width: 2px;
+  border-radius: 32px;
+}
+
+.route-box__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.route-box__dot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  height: 42px;
+}
+
+.route-box__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.route-box__label {
+  color: var(--c-text-gray);
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.32px;
+}
+
+.route-box--popup .route-box__label {
+  color: #6a6c78;
+}
+
+.route-box__value {
+  color: var(--c-black);
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+}
+
+/* Vertical connector: an 84px horizontal line rotated about a zero-width box */
+.route-box__line {
+  position: absolute;
+  left: 49px;
+  top: 81.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0;
+  height: 84px;
+}
+
+.route-box--popup .route-box__line {
+  left: 52px;
+  top: 90.5px;
+}
+
+.route-box__line > * {
+  flex: none;
+  transform: rotate(90deg);
+}
+
+/* Label / value rows */
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 0 32px;
+}
+
+.info-list--popup {
+  gap: 32px;
+  padding: 48px 32px;
+}
+
+.info-list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  font-size: 40px;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+}
+
+.info-list__label {
+  flex-shrink: 0;
+  color: #6a6b78;
+  font-weight: 500;
+}
+
+.info-list__value {
+  color: var(--c-black);
+  font-weight: 600;
+  text-align: right;
+}
+
+.info-list__line {
+  height: 3px;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--c-line-10);
+}

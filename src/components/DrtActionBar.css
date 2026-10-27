@@ -1,0 +1,59 @@
+.drt-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 38px;
+  background: var(--c-action-bg);
+  filter: drop-shadow(0 4px 10px rgba(15, 22, 40, 0.06));
+}
+
+.drt-bar__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--c-navy-800);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+}
+
+.drt-bar__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 91px;
+  height: 62px;
+}
+
+.drt-bar__actions {
+  display: flex;
+  gap: 16px;
+  width: 490px;
+}
+
+.drt-bar__btn {
+  flex: 1 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.32px;
+  white-space: nowrap;
+}
+
+.drt-bar__btn--primary {
+  background: var(--c-navy-800);
+}
+
+.drt-bar__btn--secondary {
+  background: var(--c-line-20);
+}

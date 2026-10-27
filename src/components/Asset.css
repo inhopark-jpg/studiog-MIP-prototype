@@ -1,0 +1,19 @@
+.asset-placeholder {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(127, 132, 145, 0.7);
+  border-radius: 4px;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(127, 132, 145, 0.18) 0 6px,
+    rgba(127, 132, 145, 0.06) 6px 12px
+  );
+}
+
+.asset-placeholder__label {
+  font-size: 22px;
+  font-weight: 500;
+  color: rgba(127, 132, 145, 0.95);
+}

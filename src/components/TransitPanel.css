@@ -1,0 +1,14 @@
+.transit-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 29px;
+  padding: 38px 0 29px;
+}
+
+/* Both columns share one height; pagers line up at the bottom */
+.transit-panel__cards {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+}

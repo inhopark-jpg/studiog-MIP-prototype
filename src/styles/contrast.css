@@ -1,0 +1,474 @@
+/*
+ * 고대비 (high-contrast) mode — colors from Figma section "고대비 모드" (1:16286).
+ * Colors only: no rule here may change layout, size or shape (no margins, padding,
+ * border widths, radii, sizes or added elements), so both themes share one layout.
+ * Active while <html data-contrast="high"> (src/contrast.tsx). Icons with dark exports are
+ * swapped by <Asset> from src/assets/contrast/; the few without one are inverted here.
+ * The 관광 정보 tab has no dark design, so it follows the same palette.
+ */
+:root[data-contrast='high'] {
+  --hc-page: #3b3d40;
+  --hc-bar: #171819;
+  --hc-surface: #27272a;
+  --hc-line: #555762;
+  --hc-text: #ffffff;
+  --hc-text-soft: #eceef2;
+  --hc-text-dim: #727483;
+  --hc-text-label: #b0b4bb;
+  --hc-accent: #5fc9ff;
+  /* Figma: 4% #5fc9ff over #171819 */
+  --hc-accent-fill: linear-gradient(rgba(95, 201, 255, 0.04), rgba(95, 201, 255, 0.04)), #171819;
+  --hc-alert: #ffab94;
+}
+
+:root[data-contrast='high'] .kiosk-stage {
+  background: var(--hc-page);
+}
+
+/* Inverts a dark-on-light icon that has no dark export (exact shape, white stroke) */
+:root[data-contrast='high'] .map-ctrl__locate,
+:root[data-contrast='high'] .slot-pager__btn img,
+:root[data-contrast='high'] .tour-pager__btn img,
+:root[data-contrast='high'] .spot-popup__nav img {
+  filter: invert(1);
+}
+
+/* ── Tabs & station header (Figma 1:18070, 1:18059) ── */
+:root[data-contrast='high'] .main-tabs__tab {
+  background: var(--hc-line);
+}
+
+:root[data-contrast='high'] .main-tabs__tab.is-active {
+  background: var(--hc-bar);
+}
+
+:root[data-contrast='high'] .station-header {
+  background: var(--hc-bar);
+}
+
+:root[data-contrast='high'] .station-header__name {
+  color: var(--hc-text-soft);
+}
+
+:root[data-contrast='high'] .station-header__meta,
+:root[data-contrast='high'] .station-header__lang {
+  color: var(--hc-text);
+}
+
+/* Booking screens dim the date and language (Figma 1:16407) */
+:root[data-contrast='high'] .home:has(.booking) .station-header__meta,
+:root[data-contrast='high'] .home:has(.booking) .station-header__lang {
+  color: var(--hc-text-dim);
+}
+
+:root[data-contrast='high'] .station-header__divider {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Map controls (Figma 1:18204) ── */
+:root[data-contrast='high'] .transit-map__controls button {
+  border-color: #bec0c8;
+  background: rgba(0, 0, 0, 0.96);
+}
+
+/* ── DRT / 버스 cards (Figma 1:18133) ── */
+:root[data-contrast='high'] .arrival-card__title {
+  background: var(--hc-bar);
+}
+
+:root[data-contrast='high'] .arrival-card__body {
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .arrival-card__divider,
+:root[data-contrast='high'] .arrival-info__sep {
+  background: var(--hc-line);
+}
+
+:root[data-contrast='high'] .arrival-card__page,
+:root[data-contrast='high'] .arrival-info__primary {
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .arrival-info__primary.is-alert {
+  color: var(--hc-alert);
+}
+
+:root[data-contrast='high'] .arrival-info__secondary {
+  color: var(--hc-text-dim);
+}
+
+:root[data-contrast='high'] .pager-btn {
+  border-color: var(--hc-text-dim);
+  background: var(--hc-text-dim);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .route-label--drt {
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .route-label--bus {
+  border-color: #add2ff;
+  color: #add2ff;
+}
+
+:root[data-contrast='high'] .route-label--bus-green {
+  border-color: #00f529;
+  color: #00f529;
+}
+
+/* ── DRT 예약 bar (Figma 1:18119) ── */
+:root[data-contrast='high'] .drt-bar {
+  background: var(--hc-bar);
+}
+
+:root[data-contrast='high'] .drt-bar__title {
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .drt-bar__btn--primary {
+  background: var(--c-blue);
+}
+
+/* ── Bottom bar: 고대비 on — white outline (Figma 1:18092) ── */
+.bottom-bar__btn.is-on {
+  border-color: #ffffff;
+}
+
+/* ── Modals (Figma 1:18365, 1:17011) ── */
+:root[data-contrast='high'] .modal-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+:root[data-contrast='high'] .modal-card {
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .modal-card__header,
+:root[data-contrast='high'] .modal-card__footer {
+  border-color: var(--hc-line);
+  background: var(--hc-bar);
+}
+
+:root[data-contrast='high'] .modal-card__title {
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .modal-card__subtitle {
+  border-color: var(--hc-line);
+  background: var(--hc-surface);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .modal-card__subtitle em {
+  color: var(--hc-accent);
+}
+
+:root[data-contrast='high'] .modal-card__btn--cancel {
+  background: var(--hc-line);
+}
+
+:root[data-contrast='high'] .option-list {
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .option-row {
+  border-color: var(--hc-line);
+  background: var(--hc-bar);
+  color: var(--hc-text-soft);
+}
+
+:root[data-contrast='high'] .option-row.is-selected {
+  border-color: var(--hc-accent);
+  background: var(--hc-accent-fill);
+  color: var(--hc-accent);
+}
+
+:root[data-contrast='high'] .option-scrollbar__track {
+  background: var(--hc-line);
+}
+
+:root[data-contrast='high'] .option-scrollbar__thumb {
+  background: var(--hc-text-label);
+}
+
+:root[data-contrast='high'] .no-results {
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .no-results__message,
+:root[data-contrast='high'] .no-reservation__message {
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .no-results__hint,
+:root[data-contrast='high'] .no-reservation__hint {
+  color: var(--hc-accent);
+}
+
+/* 예약 정보 확인: one surface, line above the buttons only (Figma 1:17619) */
+:root[data-contrast='high'] .confirm-modal .modal-card__header,
+:root[data-contrast='high'] .confirm-modal .modal-card__footer {
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .confirm-modal__notice {
+  color: var(--hc-accent);
+}
+
+/* Not in the dark design: 예약 취소 popup in the same palette */
+:root[data-contrast='high'] .cancel-modal {
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .cancel-modal__title {
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .cancel-modal__btn--no {
+  background: var(--hc-line);
+}
+
+/* ── Booking screens (Figma 1:16404 …) ── */
+:root[data-contrast='high'] .booking__title {
+  background: var(--hc-surface);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .step-nav {
+  background: var(--hc-bar);
+}
+
+:root[data-contrast='high'] .step-nav__btn--back {
+  background: var(--hc-line);
+}
+
+:root[data-contrast='high'] .reservation .step-nav__btn--back {
+  background: var(--hc-text-dim);
+}
+
+:root[data-contrast='high'] .field {
+  border-color: var(--hc-line);
+  background: var(--hc-bar);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .place-field {
+  border-color: var(--hc-text-dim);
+}
+
+:root[data-contrast='high'] .field__text.is-placeholder {
+  color: var(--hc-text-soft);
+}
+
+:root[data-contrast='high'] .field__caret {
+  background: var(--hc-accent);
+}
+
+:root[data-contrast='high'] .field-btn {
+  border-color: var(--hc-line);
+  background: var(--hc-surface);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .country-select {
+  border-color: var(--hc-accent);
+  background: var(--hc-bar);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .phone-form__note {
+  color: var(--hc-text-soft);
+}
+
+:root[data-contrast='high'] .phone-form__timer {
+  color: var(--hc-alert);
+}
+
+:root[data-contrast='high'] .numpad__key {
+  border-color: var(--hc-line);
+  background: var(--hc-surface);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .numpad__key--fn {
+  background: var(--hc-bar);
+}
+
+/* On-screen keyboard (Figma 1:16894) */
+:root[data-contrast='high'] .keyboard {
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .kb-key {
+  border-color: var(--hc-line);
+  background: var(--hc-bar);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .kb-key--fn {
+  background: var(--hc-page);
+}
+
+:root[data-contrast='high'] .kb-key:active {
+  background: var(--hc-line);
+}
+
+:root[data-contrast='high'] .kb-key--shift.is-active {
+  border-color: var(--hc-accent);
+  color: var(--hc-accent);
+}
+
+/* 인원 선택 (Figma 1:17047) */
+:root[data-contrast='high'] .trip-card {
+  border-color: var(--hc-line);
+  background: var(--hc-bar);
+}
+
+:root[data-contrast='high'] .trip-card__label,
+:root[data-contrast='high'] .passenger-total__label {
+  color: var(--hc-text-label);
+}
+
+:root[data-contrast='high'] .trip-card__value,
+:root[data-contrast='high'] .passenger-row__label,
+:root[data-contrast='high'] .stepper__value,
+:root[data-contrast='high'] .passenger-total__value {
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .trip-card__line {
+  background: var(--hc-line);
+}
+
+:root[data-contrast='high'] .passenger-row {
+  border-color: var(--hc-line);
+}
+
+:root[data-contrast='high'] .stepper__minus {
+  border-color: var(--hc-line);
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .stepper__minus > span {
+  background: var(--hc-text);
+}
+
+:root[data-contrast='high'] .passenger-total {
+  background: var(--hc-bar);
+}
+
+:root[data-contrast='high'] .passenger-total__value em {
+  color: var(--hc-accent);
+}
+
+/* 승차시간 선택 (Figma 1:16287) */
+:root[data-contrast='high'] .slot {
+  border-color: var(--hc-line);
+  background: var(--hc-bar);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .slot.is-selected {
+  border-color: var(--hc-accent);
+  background: var(--hc-accent-fill);
+}
+
+:root[data-contrast='high'] .slot-pager__btn {
+  border-color: var(--hc-text-soft);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .slot-pager__count {
+  color: var(--hc-text);
+}
+
+/* 출발지 → 도착지 and info rows (Figma 1:17623, 1:17728) */
+:root[data-contrast='high'] .route-box {
+  border-color: var(--hc-line);
+  background: var(--hc-bar);
+}
+
+:root[data-contrast='high'] .route-box__label,
+:root[data-contrast='high'] .route-box--popup .route-box__label,
+:root[data-contrast='high'] .info-list__label {
+  color: var(--hc-text-dim);
+}
+
+:root[data-contrast='high'] .route-box__value,
+:root[data-contrast='high'] .info-list__value {
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .info-list__line {
+  background: var(--hc-line);
+}
+
+/* 나의 예약 정보 / 예약 정보 없음 (Figma 1:17726, 1:17915) */
+:root[data-contrast='high'] .reservation-card,
+:root[data-contrast='high'] .no-reservation {
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .reservation-card__notice {
+  border-color: var(--hc-line);
+  background: var(--hc-bar);
+  color: var(--hc-accent);
+}
+
+/* ── 관광 정보 (no dark design; same palette) ── */
+:root[data-contrast='high'] .tour-card {
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .tour-card__title {
+  background: var(--hc-bar);
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .spot-item {
+  border-color: var(--hc-line);
+  background: var(--hc-bar);
+}
+
+:root[data-contrast='high'] .spot-item__name,
+:root[data-contrast='high'] .tour-pager__count,
+:root[data-contrast='high'] .spot-popup__name {
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .spot-item__meta,
+:root[data-contrast='high'] .spot-popup__meta {
+  color: var(--hc-text-dim);
+}
+
+:root[data-contrast='high'] .tour-pager__btn {
+  border-color: var(--hc-text-soft);
+  background: transparent;
+  color: var(--hc-text);
+}
+
+:root[data-contrast='high'] .tour-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+:root[data-contrast='high'] .spot-popup {
+  background: var(--hc-surface);
+}
+
+:root[data-contrast='high'] .spot-popup__desc {
+  color: var(--hc-text-soft);
+}
+
+:root[data-contrast='high'] .spot-popup__divider {
+  background: var(--hc-line);
+}
+
+:root[data-contrast='high'] .spot-popup__btn--close {
+  background: var(--hc-line);
+}
+
+:root[data-contrast='high'] .spot-popup__nav {
+  background: var(--hc-bar);
+}

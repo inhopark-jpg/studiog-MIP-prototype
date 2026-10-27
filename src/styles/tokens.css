@@ -1,0 +1,38 @@
+/* Design tokens from Figma (메인화면_교통수단 3개 A) */
+:root {
+  --c-white: #ffffff;
+  --c-black: #171819;
+  --c-text-gray: #555762;
+  --c-line-10: #eceef2;
+  --c-line-20: #727483;
+  --c-line-40: #b0b4bb;
+
+  --c-bg: #eceef2;
+  --c-navy-900: #002f4b;
+  --c-navy-800: #013d62;
+  --c-sky-100: #c3e8ff;
+  --c-sky-50: #e4effb;
+  --c-tab-inactive: #727483;
+
+  --c-drt: #f77d5b;
+  --c-alert: #d72d00;
+  --c-bus: #0063dd;
+  --c-bus-green: #008616;
+  --c-blue: #1941ba;
+  --c-marker-current: #ef5b2b;
+
+  --c-action-bg: #f7faff;
+  --c-bar-bg: #000000;
+  --c-bar-border: #424445;
+  --c-bar-border-muted: rgba(211, 211, 211, 0.3);
+
+  --c-map-control-bg: rgba(255, 255, 255, 0.96);
+  --c-map-control-border: #bec0c8;
+
+  --shadow-btn: 0 4px 20px rgba(15, 22, 40, 0.06);
+
+  --radius-lg: 24px;
+  --radius-md: 16px;
+
+  --font: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}

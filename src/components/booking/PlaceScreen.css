@@ -1,0 +1,68 @@
+.place-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 56px;
+}
+
+.place-field {
+  gap: 12px;
+  padding-left: 40px;
+}
+
+/* lucide map-pin frame: 33.6×38.4 with 19.2px vertical padding */
+.place-field__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 33.6px;
+  height: 38.4px;
+}
+
+.place-field__find {
+  padding: 0 40px;
+}
+
+.place-map {
+  position: relative;
+  flex: 1 1 0 !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.place-map > .transit-map {
+  flex: 1;
+}
+
+/* No-results body (Figma 1:24560): 703px tall */
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  height: 703px;
+  padding: 0 40px;
+  border-radius: 32px;
+  background: #f9f9fb;
+  filter: drop-shadow(0 4px 15px rgba(22, 28, 46, 0.05));
+  text-align: center;
+}
+
+.no-results__message {
+  color: var(--c-black);
+  font-size: 50px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.5px;
+}
+
+.no-results__hint {
+  color: var(--c-blue);
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.36px;
+}

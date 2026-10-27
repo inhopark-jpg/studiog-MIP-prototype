@@ -1,0 +1,108 @@
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 101px;
+  padding: 20px;
+  background: var(--c-bar-bg);
+}
+
+.bottom-bar__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 190px;
+  height: 100%;
+  padding: 12px 8px;
+  border: 3px solid var(--c-bar-border);
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.64px;
+  white-space: nowrap;
+}
+
+.bottom-bar__btn--grow {
+  flex: 1 0 0;
+  width: auto;
+}
+
+.bottom-bar__btn.is-muted {
+  gap: 5px;
+  border-color: var(--c-bar-border-muted);
+}
+
+.bottom-bar__btn.is-muted:disabled {
+  opacity: 0.5;
+}
+
+/* 첫화면 when away from the first screen (Figma 1:21260) */
+.bottom-bar__btn--home {
+  flex: 1 0 0;
+  width: auto;
+  padding: 12px 26px;
+  border-color: #4f4f4f;
+  font-weight: 500;
+  letter-spacing: -0.32px;
+}
+
+.bottom-bar__icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.bottom-bar__volume {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bottom-bar__volume-value {
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.36px;
+}
+
+.bottom-bar__volume-value > span:last-child {
+  min-width: 46px;
+  padding: 0 12px;
+  text-align: center;
+}
+
+/* −/+ glyphs are plain rects in the design, not vector assets */
+.volume-btn {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border: 3px solid var(--c-bar-border-muted);
+  border-radius: 9.6px;
+}
+
+.volume-btn:disabled {
+  opacity: 0.4;
+}
+
+.volume-btn__bar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20.4px;
+  height: 3.6px;
+  border-radius: 999px;
+  background: #ffffff;
+  transform: translate(-50%, -50%);
+}
+
+.volume-btn__bar--vertical {
+  transform: translate(-50%, -50%) rotate(90deg);
+}

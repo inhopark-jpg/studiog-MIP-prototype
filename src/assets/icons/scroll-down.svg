@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="btn_lower">
+<rect x="1.5" y="1.5" width="57" height="57" rx="10.5" fill="white"/>
+<rect x="1.5" y="1.5" width="57" height="57" rx="10.5" stroke="#B0B4BB" stroke-width="3"/>
+<path id="Icon" d="M40 25.5L29.9984 34.5L20 25.5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke="#555762"/>
+</g>
+</svg>
