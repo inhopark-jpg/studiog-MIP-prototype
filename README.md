@@ -65,7 +65,9 @@ npm run build
 Each upcoming booking also appears on 첫화면 as a DRT row with its own route, its boarding
 number, and a random wait of 3–24 minutes set when it's booked (`BOOKED_ETA_MIN` in
 `src/booking/state.ts`), kept short for the showcase. It also gets a van on the map,
-placed clear of the vans already there (`src/data/arrivals.ts`). It disappears once the
+placed clear of the vans already there (`src/data/arrivals.ts`), unless that DRT route is
+already on the map. A DRT route number is one van, so several pickups (rows) can share it,
+but the map shows it only once. Bus route numbers can repeat. It disappears once the
 window ends or the booking is cancelled. After booking, 첫화면 opens on the page holding the
 new row. After a short pause, the row slides open and is briefly highlighted, and its van
 pops onto the map at the same time.

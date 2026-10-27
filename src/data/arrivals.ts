@@ -20,9 +20,16 @@ export function arrivalsWith(reservations: Reservation[], now: number) {
     }));
 
   const drt = [...SNAPSHOT.drt, ...booked].sort((a, b) => a.etaMin - b.etaMin);
-  const vehicles: MapVehicle[] = [
-    ...SNAPSHOT.vehicles,
-    ...booked.map((a): MapVehicle => ({ id: vehicleIdFor(a.id), kind: 'drt', routeNo: a.routeNo, etaMin: a.etaMin })),
-  ];
+
+  // A DRT route number is one van: several pickups (table rows) can share it, but the map
+  // shows it once. A booking adds a van only when its route has none yet; it then sits at the
+  // distance of that route's soonest pickup among the bookings. (Bus route numbers can repeat.)
+  const vehicles: MapVehicle[] = [...SNAPSHOT.vehicles];
+  const drtRoutesShown = new Set(vehicles.filter((v) => v.kind === 'drt').map((v) => v.routeNo));
+  for (const a of [...booked].sort((x, y) => x.etaMin - y.etaMin)) {
+    if (drtRoutesShown.has(a.routeNo)) continue;
+    drtRoutesShown.add(a.routeNo);
+    vehicles.push({ id: vehicleIdFor(a.id), kind: 'drt', routeNo: a.routeNo, etaMin: a.etaMin });
+  }
   return { drt, vehicles };
 }
