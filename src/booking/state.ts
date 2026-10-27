@@ -53,6 +53,8 @@ export type Reservation = {
   boardingNo: string;
   /** DRT route that serves it, e.g. "05" */
   routeNo: string;
+  /** Epoch ms the van reaches this stop: a showcase-friendly few minutes out (BOOKED_ETA_MIN) */
+  arrivesAt: number;
 };
 
 export const SLOT_MINUTES = 30;
@@ -69,6 +71,13 @@ export const pickupSlots = (now: number, count: number) => {
 const randomBoardingNo = () => String(Math.floor(Math.random() * 1000)).padStart(3, '0');
 const randomRoute = () => DRT_ROUTES[Math.floor(Math.random() * DRT_ROUTES.length)];
 
+/** A booked van's wait on the 첫화면 DRT table, in minutes; kept under 25 for the showcase */
+export const BOOKED_ETA_MIN: [number, number] = [3, 24];
+const randomArrival = (now: number) => {
+  const [min, max] = BOOKED_ETA_MIN;
+  return now + (min + Math.floor(Math.random() * (max - min + 1))) * 60_000;
+};
+
 export const makeReservation = (b: BookingState): Reservation => ({
   country: b.country ?? DEFAULT_COUNTRY,
   phone: b.phone,
@@ -78,6 +87,7 @@ export const makeReservation = (b: BookingState): Reservation => ({
   slot: b.slot!,
   boardingNo: randomBoardingNo(),
   routeNo: randomRoute(),
+  arrivesAt: randomArrival(Date.now()),
 });
 
 /** The pickup window is still open (bookings drop off the 첫화면 table after it ends). */

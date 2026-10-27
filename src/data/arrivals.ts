@@ -14,7 +14,8 @@ export function arrivalsWith(reservations: Reservation[], now: number) {
     .map((r) => ({
       id: reservationArrivalId(r),
       routeNo: r.routeNo ?? '05', // bookings cached before routes were assigned
-      etaMin: Math.max(0, Math.ceil((r.slot - now) / 60_000)),
+      // Counts down from the random arrival set at booking (under 25 min), not the pickup window
+      etaMin: Math.max(0, Math.ceil((r.arrivesAt - now) / 60_000)),
       boardingNo: r.boardingNo,
     }));
 
