@@ -49,32 +49,29 @@
 }
 
 .route-box__value {
+  /* Long names (mostly English) wrap to 2 lines at most, then end in "…" */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
   color: var(--c-black);
   font-size: 40px;
   font-weight: 600;
   letter-spacing: -0.4px;
 }
 
-/* Vertical connector: an 84px horizontal line rotated about a zero-width box */
+/* Vertical connector: a zero-size anchor at the line's midpoint (set from the dots' positions) */
 .route-box__line {
   position: absolute;
-  left: 49px;
-  top: 81.5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 0;
-  height: 84px;
-}
-
-.route-box--popup .route-box__line {
-  left: 52px;
-  top: 90.5px;
+  height: 0;
 }
 
 .route-box__line > * {
-  flex: none;
-  transform: rotate(90deg);
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 
 /* Label / value rows */

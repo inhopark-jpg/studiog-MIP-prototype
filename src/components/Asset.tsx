@@ -34,7 +34,8 @@ type AssetProps = {
   width: number;
   height: number;
   alt?: string;
-  fit?: 'contain' | 'cover';
+  /** 'fill' stretches the image to the box, for exports meant to be drawn at any length */
+  fit?: 'contain' | 'cover' | 'fill';
   className?: string;
 };
 
