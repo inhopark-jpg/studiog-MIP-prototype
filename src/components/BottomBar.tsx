@@ -27,7 +27,7 @@ export function BottomBar({ isHome, volume, onHome, onVolumeChange }: Props) {
         </button>
       ) : (
         <button className="bottom-bar__btn bottom-bar__btn--home" onClick={onHome}>
-          <Asset name="icons/home-active" width={40} height={40} />
+          <Asset name="icons/home" width={40} height={40} />
           {t.home}
         </button>
       )}

@@ -31,7 +31,6 @@
 }
 
 .bottom-bar__btn.is-muted {
-  gap: 5px;
   border-color: var(--c-bar-border-muted);
 }
 
@@ -41,8 +40,6 @@
 
 /* 첫화면 when away from the first screen (Figma 1:21260) */
 .bottom-bar__btn--home {
-  flex: 1 0 0;
-  width: auto;
   padding: 12px 26px;
   border-color: #4f4f4f;
   font-weight: 500;

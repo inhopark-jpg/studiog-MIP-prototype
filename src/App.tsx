@@ -54,7 +54,6 @@ function Kiosk() {
   const [newArrivalId, setNewArrivalId] = useState<string | null>(null);
   // Bumping this remounts paged lists and recenters the map.
   const [resetKey, setResetKey] = useState(0);
-  const [isDirty, setDirty] = useState(false);
   const [langModalOpen, setLangModalOpen] = useState(false);
   const [volume, setVolume] = useSessionState('kiosk.volume', 0);
 
@@ -67,7 +66,6 @@ function Kiosk() {
     setReservation(null);
     setResetKey((k) => k + 1);
     setLangModalOpen(false);
-    setDirty(false);
   }, []);
 
   // A walk-away resets everything, including language and 고대비; 첫화면 keeps both.
@@ -128,14 +126,7 @@ function Kiosk() {
   const header = <StationHeader temperatureC={STATION.temperatureC} onLanguageClick={() => setLangModalOpen(true)} />;
 
   return (
-    <div
-      className="home"
-      // Any touch on the screen content enables 첫화면; the bottom bar's own controls
-      // (확대, 고대비, 낮은화면, volume) don't change the screen, so they don't count
-      onPointerDownCapture={(e) => {
-        if (!(e.target as HTMLElement).closest('.bottom-bar')) setDirty(true);
-      }}
-    >
+    <div className="home">
       <AppBanner />
       {screen === 'home' && (
         <>
@@ -194,7 +185,8 @@ function Kiosk() {
           <LanguageModal onClose={() => setLangModalOpen(false)} />
         </div>
       )}
-      <BottomBar isHome={screen === 'home' && !isDirty} volume={volume} onHome={goHome} onVolumeChange={setVolume} />
+      {/* Map moves and list paging stay on 첫화면; another page or the 관광 정보 tab doesn't */}
+      <BottomBar isHome={screen === 'home' && tab === 'transit'}volume={volume} onHome={goHome} onVolumeChange={setVolume} />
     </div>
   );
 }
