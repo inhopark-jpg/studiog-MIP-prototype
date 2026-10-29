@@ -1,9 +1,6 @@
 import { TOURIST_SPOTS } from '../data/tourism';
 import type { Lang } from '../i18n';
 
-const randInt = (min: number, max: number) => min + Math.floor(Math.random() * (max - min + 1));
-const randomDigits = (n: number) => Array.from({ length: n }, () => randInt(0, 9)).join('');
-
 /** iso: ISO 3166 alpha-2, shown instead of the name on the English selector */
 export type Country = { code: string; iso: string; name: Record<Lang, string> };
 
@@ -22,11 +19,12 @@ export const COUNTRIES: Country[] = [
 ];
 export const DEFAULT_COUNTRY = '82';
 
-export const randomVerificationCode = () => randomDigits(6);
+/** Prototype: every number verifies with the same code */
+export const VERIFICATION_CODE = '0000';
 
 export const PHONE_MAX_DIGITS = 11;
 export const PHONE_MIN_DIGITS = 10;
-export const CODE_DIGITS = 6;
+export const CODE_DIGITS = VERIFICATION_CODE.length;
 
 /** 010-1234-5678 / 010-123-4567; the middle group is masked once the number is complete. */
 /**
@@ -60,13 +58,10 @@ export const PLACES: Place[] = [
   { id: 'high', name: { ko: '오송고등학교', en: 'Osong High School' }, position: [36.62936, 127.32631] },
   { id: 'middle', name: { ko: '오송중학교', en: 'Osong Middle School' }, position: [36.62656, 127.33019] },
   { id: 'elementary', name: { ko: '오송초등학교', en: 'Osong Elementary School' }, position: [36.61275, 127.32552] },
-  // 관광 명소 (dummy Osong positions), so 관광 정보 → DRT 예약하기 can pre-fill the destination
-  ...TOURIST_SPOTS.map(({ id, name, position }) => ({ id, name, position })),
+  // DRT-reachable 관광 명소, so 관광 정보 → DRT 예약하기 can pre-fill the destination
+  ...TOURIST_SPOTS.filter((s) => s.drt).map(({ id, name, position }) => ({ id, name, position })),
 ];
 export const placeById = (id: string) => PLACES.find((p) => p.id === id);
-
-/** Pre-filled search term: matches most places in either language */
-export const PLACE_QUERY: Record<Lang, string> = { ko: '오송', en: 'Osong' };
 
 const normalize = (s: string) => s.replace(/\s/g, '').toLowerCase();
 /** Matches Korean or English names, ignoring spaces and case. */

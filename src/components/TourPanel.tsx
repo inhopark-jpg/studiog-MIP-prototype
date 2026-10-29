@@ -12,7 +12,7 @@ type Props = {
   onBook: (spot: TouristSpot) => void;
 };
 
-/** 관광 정보 tab (Figma 1:22564) and the spot popup (1:22710). The design's QR banner is left out. */
+/** 관광 정보 tab (Figma 1:22564) and the spot popup (1:22710; no DRT: 1:22831). The design's QR banner is left out. */
 export function TourPanel({ onBook }: Props) {
   const { lang, t } = useLanguage();
   const [page, setPage] = useState(0);
@@ -35,7 +35,7 @@ export function TourPanel({ onBook }: Props) {
                 <span className="spot-item__text">
                   <span className="spot-item__name">{spot.name[lang]}</span>
                   <span className="spot-item__meta">{spot.category[lang]}</span>
-                  <span className="spot-item__meta">{t.drtAvailable}</span>
+                  {spot.drt && <span className="spot-item__meta">{t.drtAvailable}</span>}
                 </span>
               </button>
             </li>
@@ -70,12 +70,13 @@ export function TourPanel({ onBook }: Props) {
                 <span>{open.category[lang]}</span>
               </p>
               <p className="spot-popup__desc">{open.description[lang]}</p>
+              {!open.drt && <p className="spot-popup__no-drt">{t.drtUnavailable}</p>}
             </div>
             <div className="spot-popup__actions">
               <button className="spot-popup__btn spot-popup__btn--close" onClick={() => setOpenIndex(null)}>
                 {t.close}
               </button>
-              <button className="spot-popup__btn spot-popup__btn--book" onClick={() => onBook(open)}>
+              <button className="spot-popup__btn spot-popup__btn--book" disabled={!open.drt} onClick={() => onBook(open)}>
                 <Asset name="icons/calendar" width={38} height={38} />
                 {t.bookDrt}
               </button>

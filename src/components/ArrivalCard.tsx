@@ -14,9 +14,12 @@ type Props<T extends { id: string }> = {
   renderRow: (item: T) => ReactNode;
   /** A row that was just added: opens on its page and animates in */
   newId?: string | null;
+  /** Tapping a row (shows its vehicle on the map) */
+  onSelect?: (item: T) => void;
 };
 
-export function ArrivalCard<T extends { id: string }>({ title, items, pageSize = 3, renderRow, newId }: Props<T>) {
+export function ArrivalCard<T extends { id: string }>(props: Props<T>) {
+  const { title, items, pageSize = 3, renderRow, newId, onSelect } = props;
   const { t } = useLanguage();
   const [page, setPage] = useState(() => {
     const index = items.findIndex((item) => item.id === newId);
@@ -33,7 +36,9 @@ export function ArrivalCard<T extends { id: string }>({ title, items, pageSize =
         <ul className="arrival-card__rows" style={{ minHeight: pageSize * ROW_PITCH - ROW_GAP }}>
           {visible.map((item) => (
             <li key={item.id} className={`arrival-card__item ${item.id === newId ? 'is-new' : ''}`}>
-              <div className="arrival-card__row">{renderRow(item)}</div>
+              <div className="arrival-card__row" role="button" onClick={() => onSelect?.(item)}>
+                {renderRow(item)}
+              </div>
               <div className="arrival-card__divider" aria-hidden />
             </li>
           ))}

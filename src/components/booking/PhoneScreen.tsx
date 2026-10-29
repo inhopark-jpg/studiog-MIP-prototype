@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   CODE_DIGITS,
   COUNTRIES,
@@ -6,7 +6,7 @@ import {
   formatPhone,
   PHONE_MAX_DIGITS,
   PHONE_MIN_DIGITS,
-  randomVerificationCode,
+  VERIFICATION_CODE,
 } from '../../booking/data';
 import type { BookingState } from '../../booking/state';
 import { useNow } from '../../hooks/useNow';
@@ -18,8 +18,6 @@ import { BookingLayout, Gap } from './BookingLayout';
 import { NumericKeypad } from './NumericKeypad';
 import './PhoneScreen.css';
 
-/** Simulated SMS delay before the code "arrives" */
-const SMS_DELAY_MS = 700;
 /** How long a sent code stays valid; 연장 restarts it */
 const CODE_VALID_MS = 60_000;
 
@@ -38,8 +36,6 @@ export function PhoneScreen({ booking, update, onBack, onNext }: Props) {
   const { lang, t } = useLanguage();
   const [target, setTarget] = useState<'phone' | 'code'>(booking.codeRequested ? 'code' : 'phone');
   const [countryModal, setCountryModal] = useState<string | null>(null); // pending selection while open
-  const smsTimer = useRef<number>();
-  useEffect(() => () => window.clearTimeout(smsTimer.current), []);
 
   const now = useNow(250).getTime();
   const secondsLeft = booking.codeExpiresAt === null ? null : Math.max(0, Math.ceil((booking.codeExpiresAt - now) / 1000));
@@ -48,7 +44,6 @@ export function PhoneScreen({ booking, update, onBack, onNext }: Props) {
   // An expired code can't be used: clear it so 다음 disables until 인증요청 is pressed again
   useEffect(() => {
     if (expired && booking.code) {
-      window.clearTimeout(smsTimer.current);
       update({ code: '' });
     }
   }, [expired, booking.code, update]);
@@ -57,7 +52,6 @@ export function PhoneScreen({ booking, update, onBack, onNext }: Props) {
 
   const editPhone = (phone: string) => {
     // A new number invalidates any code already sent
-    window.clearTimeout(smsTimer.current);
     update({ phone, code: '', codeRequested: false, codeExpiresAt: null });
     setTarget('phone');
   };
@@ -65,9 +59,6 @@ export function PhoneScreen({ booking, update, onBack, onNext }: Props) {
   const requestCode = () => {
     update({ code: '', codeRequested: true, codeExpiresAt: Date.now() + CODE_VALID_MS });
     setTarget('code');
-    window.clearTimeout(smsTimer.current);
-    // Prototype: the "SMS" fills the code in automatically
-    smsTimer.current = window.setTimeout(() => update({ code: randomVerificationCode() }), SMS_DELAY_MS);
   };
 
   const keypad = {
@@ -86,7 +77,7 @@ export function PhoneScreen({ booking, update, onBack, onNext }: Props) {
       title={t.phoneTitle}
       onBack={onBack}
       onNext={onNext}
-      nextDisabled={!booking.codeRequested || expired || booking.code.length !== CODE_DIGITS}
+      nextDisabled={!booking.codeRequested || expired || booking.code !== VERIFICATION_CODE}
       overlay={
         countryModal !== null && (
           <ModalOverlay>

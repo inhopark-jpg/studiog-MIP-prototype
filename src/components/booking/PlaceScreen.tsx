@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PLACE_QUERY, placeById, searchPlaces } from '../../booking/data';
+import { placeById, searchPlaces } from '../../booking/data';
 import { backspace, typeKey } from '../../booking/hangul';
 import type { BookingState } from '../../booking/state';
 import { STATION, type MapVehicle } from '../../data/mock';
@@ -33,9 +33,9 @@ export function PlaceScreen({ booking, update, onBack, onNext }: Props) {
   const dropoff = booking.dropoff ? placeById(booking.dropoff) : undefined;
   const dropoffName = dropoff?.name[lang] ?? null;
 
-  // Tapping the field opens the keyboard. Prototype: a search term with results is pre-typed.
+  // Tapping the field opens the keyboard, starting from the chosen destination if there is one
   const openKeyboard = () => {
-    if (!typing) setQuery(dropoffName ?? PLACE_QUERY[lang]);
+    if (!typing) setQuery(dropoffName ?? '');
   };
 
   // Changing the text un-chooses the destination until a new result is picked

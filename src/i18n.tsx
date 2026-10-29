@@ -25,7 +25,7 @@ const ko = {
   // Figma (1:21043) uses "N분 전" for DRT rows too
   drtEta: (min: number) => (min === 0 ? '곧 도착' : `${min}분 전`),
   boardingNo: (no: string) => `탑승번호 : ${no}`,
-  busEta: (min: number) => `${min}분 전`,
+  busEta: (min: number) => (min === 0 ? '도착' : `${min}분 전`),
   floor: (low: boolean): string => (low ? '저상' : '일반'),
   /** indexed by crowd level 0–2 */
   crowd: ['여유', '보통', '혼잡'],
@@ -139,6 +139,7 @@ const ko = {
   // 관광 정보 (Figma 1:22564, popup 1:22710)
   tourTitle: '관광 명소',
   drtAvailable: 'DRT 호출 가능',
+  drtUnavailable: '해당 목적지로는 DRT 예약이 어렵습니다.',
   close: '닫기',
   prevSpot: '이전 명소',
   nextSpot: '다음 명소',
@@ -172,7 +173,7 @@ const en: Strings = {
   drtVehicle: (no) => `Osong${no}`,
   drtEta: (min) => (min === 0 ? 'Arriving Soon' : `${min} Min`),
   boardingNo: (no) => `Boarding No. : ${no}`,
-  busEta: (min) => `${min} Min`,
+  busEta: (min) => (min === 0 ? 'Arrived' : `${min} Min`),
   floor: (low) => (low ? 'Low-floor' : 'Standard'),
   // Short enough for "Low-floor | ___ ●●○" to fit the 286px bus info column
   crowd: ['Light', 'Mid', 'Busy'],
@@ -274,6 +275,7 @@ const en: Strings = {
   mapArrive: 'Drop-off',
   tourTitle: 'Attractions',
   drtAvailable: 'DRT available',
+  drtUnavailable: "DRT booking isn't available for this destination.",
   close: 'Close',
   prevSpot: 'Previous attraction',
   nextSpot: 'Next attraction',

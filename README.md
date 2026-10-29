@@ -1,14 +1,18 @@
 # MIP 모빌리티 키오스크 — Web Prototype
 
 Portrait kiosk prototype (design canvas 1080 × 1920) built from the Figma frame
-`메인화면_교통수단 3개 A` (node `1:21714`). No backend. `src/data/mock.ts` generates a new random snapshot on every page load:
-1 sample DRT ride (plus any bookings made on the kiosk) and 3–5 buses (routes, ETAs,
-boarding numbers, low-floor, crowding). Both columns are always sized for a full page of
-three rows. Every
-row in the tables is also a vehicle on the map, so the two always match. `src/components/placeVehicles.ts` puts each vehicle on a real road
-from the visible OSM data (buses on main roads, DRT also on minor streets). Sooner
-arrivals sit closer to the stop, each van faces along its road toward the stop, and no
-label overlaps the 현위치 pin, the map controls or another vehicle. The volume and
+`메인화면_교통수단 3개 A` (node `1:21714`). No backend. `src/data/mock.ts` generates random arrivals on
+page load: 1 sample DRT ride (plus any bookings made on the kiosk) and 3–5 buses (routes, ETAs,
+boarding numbers, low-floor, crowding). They then run in real time: waits count down, an
+arrived vehicle shows 곧 도착 (DRT) / 도착 (bus) for 1 minute and then leaves, and a new one
+joins the end so the tables never run empty. Both columns are always sized for a full page of
+three rows. Every bus row is also a vehicle on the map (DRT: one van per route).
+`src/components/vehiclePaths.ts` drives each vehicle along one of the saved road paths in
+`src/data/roadPaths.ts` (OSRM routes over OpenStreetMap roads into the transfer center's loop
+road at 현위치), facing along the road. Every vehicle drives at ~21 km/h, so its distance along
+the road matches its wait (20 min ≈ 7 km). The map stays centered on 현위치 at a zoom showing
+roughly the buses within 5 minutes; tapping a table row centers its vehicle for 15 s. Arrived
+vehicles wait at 현위치, queued in order. The volume and
 language settings are cached in `sessionStorage` only. Bookings (below) are kept in memory
 only, so a refresh clears them. No real ride is requested. Any action whose screen hasn't been designed yet
 (확대, 낮은화면, 기호) shows "지원되지 않습니다".

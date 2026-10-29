@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   makeReservation,
   newBooking,
@@ -12,6 +12,7 @@ import { ContrastProvider, useContrast } from './contrast';
 import { arrivalsWith, reservationArrivalId, vehicleIdFor } from './data/arrivals';
 import { STATION } from './data/mock';
 import { useIdleReset } from './hooks/useIdleReset';
+import { useNow } from './hooks/useNow';
 import { useSessionState } from './hooks/useSessionState';
 import { LanguageProvider, useLanguage, type Lang } from './i18n';
 import { AppBanner } from './components/AppBanner';
@@ -34,6 +35,8 @@ import { TransitPanel } from './components/TransitPanel';
 import './App.css';
 
 const IDLE_RESET_MS = 90_000;
+/** Shows the road network ~1.5 km around 현위치: roughly the buses arriving within 5 minutes */
+const HOME_MAP_ZOOM = 13.5;
 /** Long enough for the delayed row/van entrance on 첫화면 to finish */
 const NEW_ARRIVAL_CLEAR_MS = 4_000;
 
@@ -54,6 +57,8 @@ function Kiosk() {
   const [newArrivalId, setNewArrivalId] = useState<string | null>(null);
   // Bumping this remounts paged lists and recenters the map.
   const [resetKey, setResetKey] = useState(0);
+  // A tapped table row: the map shows its vehicle, then returns to 현위치
+  const [mapFocus, setMapFocus] = useState<{ vehicleId: string; at: number } | null>(null);
   const [langModalOpen, setLangModalOpen] = useState(false);
   const [volume, setVolume] = useSessionState('kiosk.volume', 0);
 
@@ -65,6 +70,7 @@ function Kiosk() {
     setBooking(newBooking());
     setReservation(null);
     setResetKey((k) => k + 1);
+    setMapFocus(null);
     setLangModalOpen(false);
   }, []);
 
@@ -75,8 +81,9 @@ function Kiosk() {
     setContrast(false);
   });
 
-  // ETAs are worked out each time a screen with the map or table opens
-  const arrivals = useMemo(() => arrivalsWith(reservations, Date.now()), [reservations, screen, resetKey]);
+  // Waits count down and vehicles drive in real time
+  const now = useNow().getTime();
+  const arrivals = arrivalsWith(reservations, now);
 
   // The entrance animation plays once
   useEffect(() => {
@@ -123,6 +130,10 @@ function Kiosk() {
     goHome();
   };
 
+  const focusVehicle = (vehicleId: string | undefined) => {
+    if (vehicleId) setMapFocus({ vehicleId, at: Date.now() });
+  };
+
   const header = <StationHeader temperatureC={STATION.temperatureC} onLanguageClick={() => setLangModalOpen(true)} />;
 
   return (
@@ -138,10 +149,23 @@ function Kiosk() {
                 <TransitMap
                   center={STATION.position}
                   resetKey={resetKey}
+                  zoom={HOME_MAP_ZOOM}
                   vehicles={arrivals.vehicles}
                   newVehicleId={newArrivalId && vehicleIdFor(newArrivalId)}
+                  focus={mapFocus}
                 />
-                <TransitPanel key={resetKey} drt={arrivals.drt} newDrtId={newArrivalId} />
+                <TransitPanel
+                  key={resetKey}
+                  drt={arrivals.drt}
+                  bus={arrivals.bus}
+                  now={now}
+                  newDrtId={newArrivalId}
+                  // A DRT row's van is the one map vehicle for its route
+                  onSelectDrt={(row) =>
+                    focusVehicle(arrivals.vehicles.find((v) => v.kind === 'drt' && v.routeNo === row.routeNo)?.id)
+                  }
+                  onSelectBus={(row) => focusVehicle(vehicleIdFor(row.id))}
+                />
                 <DrtActionBar onBook={() => startBooking()} onLookup={startLookup} />
               </>
             ) : (

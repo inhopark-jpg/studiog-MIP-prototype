@@ -469,6 +469,19 @@
   background: var(--hc-line);
 }
 
+:root[data-contrast='high'] .spot-popup__no-drt {
+  color: var(--hc-accent);
+}
+
+:root[data-contrast='high'] .spot-popup__btn--book:disabled {
+  background: var(--hc-bar);
+  color: var(--hc-text-dim);
+}
+
+:root[data-contrast='high'] .spot-popup__btn--book:disabled img {
+  opacity: 0.4;
+}
+
 :root[data-contrast='high'] .spot-popup__nav {
   background: var(--hc-bar);
 }

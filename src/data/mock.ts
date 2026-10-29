@@ -1,5 +1,6 @@
-// Mock data — the prototype has no backend. Arrivals are randomized once per page load
-// so the kiosk doesn't look identical on every refresh. Display text comes from i18n.tsx.
+// Mock data — the prototype has no backend. Arrivals are randomized at page load so the
+// kiosk doesn't look identical on every refresh, then run on in real time. Display text
+// comes from i18n.tsx.
 
 export const STATION = {
   temperatureC: 21,
@@ -7,23 +8,24 @@ export const STATION = {
   position: [36.6199, 127.3262] as [number, number],
 };
 
-/** etaMin 0 = 곧 도착 */
-export type DrtArrival = { id: string; routeNo: string; etaMin: number; boardingNo: string };
+/** The 분 전 counts down to arrivesAt (epoch ms); 곧 도착 while the van waits at the stop */
+export type DrtArrival = { id: string; routeNo: string; arrivesAt: number; boardingNo: string };
 /** Label colors from Figma: blue routes (#0063dd) and green routes (#008616) */
 export type BusColor = 'blue' | 'green';
 export type BusArrival = {
   id: string;
   route: string;
   color: BusColor;
-  etaMin: number;
+  /** Epoch ms; the 분 전 counts down to it */
+  arrivesAt: number;
   lowFloor: boolean;
   /** 0 = 여유, 1 = 보통, 2 = 혼잡 */
   crowd: 0 | 1 | 2;
 };
-/** Every arrival row is one vehicle on the map. */
+/** Every bus row is one vehicle on the map; a DRT van can serve several rows (one per route). */
 export type MapVehicle =
-  | { id: string; kind: 'drt'; routeNo: string; etaMin: number }
-  | { id: string; kind: 'bus'; routeNo: string; etaMin: number; color: BusColor };
+  | { id: string; kind: 'drt'; routeNo: string; arrivesAt: number }
+  | { id: string; kind: 'bus'; routeNo: string; arrivesAt: number; color: BusColor };
 
 export const DRT_ROUTES = ['01', '02', '03', '05', '06'];
 const BUS_ROUTES: { route: string; color: BusColor }[] = [
@@ -42,50 +44,56 @@ const BUS_COUNT: [number, number] = [3, 5];
 const randInt = (min: number, max: number) => min + Math.floor(Math.random() * (max - min + 1));
 const pick = <T,>(items: T[]) => items[randInt(0, items.length - 1)];
 
-/** `count` ascending ETAs: `soon` leading zeros (곧 도착), then gaps of `step` minutes. */
-function etas(count: number, soon: number, first: [number, number], step: [number, number]) {
-  const out: number[] = [];
+const LOADED_AT = Date.now();
+const MINUTE_MS = 60_000;
+/** An arrived vehicle stays at the stop (and in the table) this long, then leaves */
+const DWELL_MS = MINUTE_MS;
+
+/** Whole minutes left, rounded up: 0 only once the vehicle has arrived */
+export const etaMin = (arrivesAt: number, now: number) => Math.max(0, Math.ceil((arrivesAt - now) / MINUTE_MS));
+export const hasArrived = (arrivesAt: number, now: number) => now >= arrivesAt;
+export const hasLeft = (arrivesAt: number, now: number) => now >= arrivesAt + DWELL_MS;
+
+/**
+ * A random line of arrivals that runs on in real time. Each one leaves DWELL_MS after
+ * arriving and a new one joins the end, so the table keeps the same number of rows.
+ */
+function liveQueue<T extends { arrivesAt: number }>(
+  count: [number, number],
+  first: [number, number],
+  step: [number, number],
+  make: (arrivesAt: number) => T,
+) {
+  const queue: T[] = [];
   let eta = randInt(...first);
-  for (let i = 0; i < count; i++) {
-    if (i < soon) {
-      out.push(0);
-    } else {
-      out.push(eta);
-      eta += randInt(...step);
-    }
+  for (let i = randInt(...count); i > 0; i--) {
+    queue.push(make(LOADED_AT + eta * MINUTE_MS));
+    eta += randInt(...step);
   }
-  return out;
+  return (now: number): T[] => {
+    while (queue.length && hasLeft(queue[0].arrivesAt, now)) {
+      queue.shift();
+      const last = queue[queue.length - 1]?.arrivesAt ?? now;
+      queue.push(make(Math.max(last, now) + randInt(...step) * MINUTE_MS));
+    }
+    return [...queue];
+  };
 }
 
-function generateDrt(): DrtArrival[] {
-  let boarding = randInt(1, 20);
-  const count = randInt(...DRT_COUNT);
-  return etas(count, randInt(0, count), [2, 6], [2, 7]).map((etaMin, i) => {
-    boarding += randInt(1, 4);
-    return { id: `d${i}`, routeNo: pick(DRT_ROUTES), etaMin, boardingNo: String(boarding).padStart(3, '0') };
-  });
-}
+let drtSeq = 0;
+let boarding = randInt(1, 20);
+/** The DRT table at `now` (bookings are added in arrivals.ts) */
+export const drtAt = liveQueue(DRT_COUNT, [2, 6], [2, 7], (arrivesAt): DrtArrival => {
+  boarding += randInt(1, 4);
+  return { id: `d${drtSeq++}`, routeNo: pick(DRT_ROUTES), arrivesAt, boardingNo: String(boarding).padStart(3, '0') };
+});
 
-function generateBus(): BusArrival[] {
-  return etas(randInt(...BUS_COUNT), 0, [1, 5], [1, 8]).map((etaMin, i) => ({
-    id: `b${i}`,
-    ...pick(BUS_ROUTES),
-    etaMin,
-    lowFloor: Math.random() < 0.6,
-    crowd: pick([0, 0, 1, 1, 1, 2] as const),
-  }));
-}
-
-/** One map vehicle per arrival row, so the table and the map always match. */
-function generateVehicles(drt: DrtArrival[], bus: BusArrival[]): MapVehicle[] {
-  return [
-    ...drt.map((a): MapVehicle => ({ id: `v-${a.id}`, kind: 'drt', routeNo: a.routeNo, etaMin: a.etaMin })),
-    ...bus.map((b): MapVehicle => ({ id: `v-${b.id}`, kind: 'bus', routeNo: b.route, etaMin: b.etaMin, color: b.color })),
-  ];
-}
-
-const drt = generateDrt();
-const bus = generateBus();
-
-/** One random snapshot per page load. */
-export const SNAPSHOT = { drt, bus, vehicles: generateVehicles(drt, bus) };
+let busSeq = 0;
+/** The bus table at `now` */
+export const busesAt = liveQueue(BUS_COUNT, [1, 5], [1, 8], (arrivesAt): BusArrival => ({
+  id: `b${busSeq++}`,
+  ...pick(BUS_ROUTES),
+  arrivesAt,
+  lowFloor: Math.random() < 0.6,
+  crowd: pick([0, 0, 1, 1, 1, 2] as const),
+}));

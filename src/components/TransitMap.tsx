@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import maplibregl, { type LngLatLike } from 'maplibre-gl';
 import type { MapVehicle } from '../data/mock';
 import { useLanguage, type Lang, type Strings } from '../i18n';
-import { distanceForEta, placeVehicles, ROADS_FOR, type Placement } from './placeVehicles';
 import { Asset, assetHtml } from './Asset';
+import { vehiclePositions } from './vehiclePaths';
 import './TransitMap.css';
 
 /*
@@ -23,10 +23,14 @@ type Props = {
   resetKey: number;
   /** Zoom/locate buttons offset from the top-right corner (home: 30/47, booking: 15/40) */
   controlsInset?: { top: number; right: number };
-  /** One per arrival row (snapshot + bookings) */
+  /** Live arrivals plus bookings; a new array each tick moves them along their roads */
   vehicles: MapVehicle[];
   /** A just-booked van, which pops in with its table row */
   newVehicleId?: string | null;
+  /** The resting zoom around 현위치, which 첫화면 and the locate button return to */
+  zoom?: number;
+  /** A tapped table row: the map centers on its vehicle once, then returns to 현위치 */
+  focus?: { vehicleId: string; at: number } | null;
   /** [lat, lng] of the chosen drop-off: shows the 도착 marker and fits both stops in view */
   destination?: [number, number] | null;
 };
@@ -46,11 +50,12 @@ function fitPadding(mapHeight: number) {
     right: FIT_PADDING.right,
   };
 }
+
+/** A tapped vehicle stays centered this long before the map returns to 현위치 */
+const FOCUS_HOLD_MS = 15_000;
+
 /** map-pin-arrive export is 51.16×65.62 incl. shadow; the pin tip sits at (23.58, 55.71) */
 const ARRIVE_PIN = { width: 51.1592, height: 65.6186, tipX: 23.58, tipY: 55.71 };
-
-/** Vehicles keep their spots when the map is shown again; new ones are placed around them. */
-const placementCache = new Map<string, Placement>();
 
 const toLngLat = ([lat, lng]: [number, number]): LngLatLike => [lng, lat];
 
@@ -126,8 +131,61 @@ function labelGap(heading: number) {
   return Math.round(halfExtent - 32 + 8);
 }
 
+type VehicleMarker = { van: maplibregl.Marker; tag: maplibregl.Marker; icon: HTMLElement; label: HTMLElement };
+
+/** ~20 fps is smooth at driving speed without redrawing markers every frame */
+const MOVE_INTERVAL_MS = 50;
+
+function moveVehicles(markers: Map<string, VehicleMarker>, vehicles: MapVehicle[]) {
+  const positions = vehiclePositions(vehicles, Date.now());
+  for (const [id, { lngLat, heading }] of positions) {
+    const m = markers.get(id);
+    if (!m) continue;
+    m.van.setLngLat(lngLat);
+    m.icon.style.transform = `rotate(${heading}deg)`;
+    // left edge just past the rotated van (64px frame centered on lngLat)
+    m.tag.setLngLat(lngLat).setOffset([32 + labelGap(heading), 0]);
+  }
+}
+
+/** Van and label are separate markers so every label stacks above every van. */
+function createVehicleMarker(map: maplibregl.Map, v: MapVehicle, newDelayMs: number | null): VehicleMarker {
+  // bus-marker frame is 64×64; its export (67×100) overflows by the shadow, offset (-2, -10)
+  const variant = v.kind === 'drt' ? 'drt' : v.color === 'green' ? 'bus-green' : 'bus';
+  const classes = `map-vehicle map-vehicle--${variant} ${newDelayMs !== null ? 'is-new' : ''}`;
+  const animation = newDelayMs !== null ? `style="animation-delay: ${newDelayMs}ms"` : '';
+
+  const vanEl = markerElement(`<div class="${classes}" ${animation}>
+      <span class="map-vehicle__icon">${assetHtml(VEHICLE_ASSET[variant], 67, 100)}</span>
+    </div>`);
+  vanEl.style.zIndex = String(Z.van);
+  const van = new maplibregl.Marker({ element: vanEl, anchor: 'center' }).setLngLat([0, 0]).addTo(map);
+
+  const tagEl = markerElement(`<div class="${classes} map-vehicle--tag" ${animation}>
+      <span class="map-vehicle__label"></span>
+    </div>`);
+  tagEl.style.zIndex = String(Z.label);
+  const tag = new maplibregl.Marker({ element: tagEl, anchor: 'left' }).setLngLat([0, 0]).addTo(map);
+
+  return {
+    van,
+    tag,
+    icon: vanEl.querySelector<HTMLElement>('.map-vehicle__icon')!,
+    label: tagEl.querySelector<HTMLElement>('.map-vehicle__label')!,
+  };
+}
+
 export function TransitMap(props: Props) {
-  const { center, resetKey, controlsInset = { top: 30, right: 47 }, vehicles, newVehicleId, destination } = props;
+  const {
+    center,
+    resetKey,
+    controlsInset = { top: 30, right: 47 },
+    vehicles,
+    newVehicleId,
+    zoom = DEFAULT_ZOOM,
+    focus,
+    destination,
+  } = props;
   const { lang, t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -135,24 +193,22 @@ export function TransitMap(props: Props) {
   langRef.current = lang;
   const tRef = useRef(t);
   tRef.current = t;
-  // Read when the first tiles are in; the list is fixed for each mount of the map
   const vehiclesRef = useRef(vehicles);
   vehiclesRef.current = vehicles;
-  const newVehicleIdRef = useRef(newVehicleId);
-  newVehicleIdRef.current = newVehicleId;
   // Marker label nodes, updated in place when the language changes
   const currentLabelRef = useRef<HTMLElement | null>(null);
-  const vehicleLabelRefs = useRef(new Map<string, HTMLElement>());
+  const vehicleMarkersRef = useRef(new Map<string, VehicleMarker>());
+  const mountedAtRef = useRef(0);
   const destinationRef = useRef<{ marker: maplibregl.Marker; label: HTMLElement } | null>(null);
 
   useEffect(() => {
-    const mountedAt = performance.now();
+    mountedAtRef.current = performance.now();
     const el = containerRef.current!;
     const map = new maplibregl.Map({
       container: el,
       style: STYLE_URL,
       center: toLngLat(center),
-      zoom: DEFAULT_ZOOM,
+      zoom,
       minZoom: 11,
       maxZoom: 19,
       pitchWithRotate: false,
@@ -180,51 +236,6 @@ export function TransitMap(props: Props) {
       .setLngLat(toLngLat(center))
       .addTo(map);
 
-    // Vehicles need road geometry, so they're placed once the first tiles have rendered.
-    map.once('idle', () => {
-      const shown = vehiclesRef.current;
-      const unplaced = shown.filter((v) => !placementCache.has(v.id));
-      const newPlacements = placeVehicles(
-        map,
-        toLngLat(center),
-        unplaced.map((v) => ({ distancePx: distanceForEta(v.etaMin), roadClasses: ROADS_FOR[v.kind] })),
-        shown.flatMap((v) => placementCache.get(v.id) ?? []),
-      );
-      unplaced.forEach((v, i) => placementCache.set(v.id, newPlacements[i]));
-
-      shown.forEach((v) => {
-        const { lngLat, heading } = placementCache.get(v.id)!;
-        // bus-marker frame is 64×64; its export (67×100) overflows by the shadow, offset (-2, -10)
-        const variant = v.kind === 'drt' ? 'drt' : v.color === 'green' ? 'bus-green' : 'bus';
-        // Pops in together with its table row (NEW_ARRIVAL_DELAY_MS after 첫화면 appears)
-        const isNew = v.id === newVehicleIdRef.current;
-        const delay = Math.max(0, NEW_ARRIVAL_DELAY_MS - (performance.now() - mountedAt));
-        const classes = `map-vehicle map-vehicle--${variant} ${isNew ? 'is-new' : ''}`;
-        const animation = isNew ? `style="animation-delay: ${delay}ms"` : '';
-
-        // Van and label are separate markers so every label stacks above every van
-        const van = markerElement(`<div class="${classes}" ${animation}>
-            <span class="map-vehicle__icon" style="transform: rotate(${heading}deg)">
-              ${assetHtml(VEHICLE_ASSET[variant], 67, 100)}
-            </span>
-          </div>`);
-        van.style.zIndex = String(Z.van);
-        new maplibregl.Marker({ element: van, anchor: 'center' }).setLngLat(lngLat).addTo(map);
-
-        const tag = markerElement(`<div class="${classes} map-vehicle--tag" ${animation}>
-            <span class="map-vehicle__label"></span>
-          </div>`);
-        tag.style.zIndex = String(Z.label);
-        const label = tag.querySelector<HTMLElement>('.map-vehicle__label')!;
-        label.textContent = vehicleLabel(v, tRef.current);
-        vehicleLabelRefs.current.set(v.id, label);
-        // left edge just past the rotated van (64px frame centered on lngLat)
-        new maplibregl.Marker({ element: tag, anchor: 'left', offset: [32 + labelGap(heading), 0] })
-          .setLngLat(lngLat)
-          .addTo(map);
-      });
-    });
-
     mapRef.current = map;
     const observer = new ResizeObserver(() => map.resize());
     observer.observe(el);
@@ -233,15 +244,68 @@ export function TransitMap(props: Props) {
       observer.disconnect();
       map.remove();
       mapRef.current = null;
+      vehicleMarkersRef.current.clear();
     };
     // center is static per kiosk; recentering is driven by resetKey
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Each tick: arrivals pop in and departed vehicles leave
   useEffect(() => {
-    mapRef.current?.jumpTo({ center: toLngLat(center), zoom: DEFAULT_ZOOM });
+    const map = mapRef.current;
+    if (!map) return;
+    const markers = vehicleMarkersRef.current;
+    const shownIds = new Set(vehicles.map((v) => v.id));
+    for (const [id, m] of markers) {
+      if (shownIds.has(id)) continue;
+      m.van.remove();
+      m.tag.remove();
+      markers.delete(id);
+    }
+    for (const v of vehicles) {
+      if (markers.has(v.id)) continue;
+      // Pops in together with its table row (NEW_ARRIVAL_DELAY_MS after 첫화면 appears)
+      const isNew = v.id === newVehicleId;
+      const delay = Math.max(0, NEW_ARRIVAL_DELAY_MS - (performance.now() - mountedAtRef.current));
+      const m = createVehicleMarker(map, v, isNew ? delay : null);
+      m.label.textContent = vehicleLabel(v, t);
+      markers.set(v.id, m);
+    }
+    moveVehicles(markers, vehicles);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vehicles]);
+
+  // Vehicles drive smoothly between ticks
+  useEffect(() => {
+    let frame = 0;
+    let last = 0;
+    const step = (time: number) => {
+      if (time - last >= MOVE_INTERVAL_MS) {
+        last = time;
+        moveVehicles(vehicleMarkersRef.current, vehiclesRef.current);
+      }
+      frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    mapRef.current?.jumpTo({ center: toLngLat(center), zoom });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetKey]);
+
+  // A tapped row: center on its vehicle where it is now (it isn't followed), then back to 현위치
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !focus) return;
+    const position = vehiclePositions(vehiclesRef.current, Date.now()).get(focus.vehicleId);
+    if (!position) return;
+    map.easeTo({ center: position.lngLat, zoom: Math.max(map.getZoom(), zoom), duration: 800 });
+    const id = window.setTimeout(() => map.easeTo({ center: toLngLat(center), zoom, duration: 800 }), FOCUS_HOLD_MS);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus]);
 
   // 도착 marker (Figma 1:20371): pops in where the chosen destination is
   const [destLat, destLng] = destination ?? [];
@@ -253,7 +317,7 @@ export function TransitMap(props: Props) {
     destinationRef.current = null;
 
     if (destLat === undefined || destLng === undefined) {
-      if (hadDestination) map.easeTo({ center: toLngLat(center), zoom: DEFAULT_ZOOM, duration: 400 });
+      if (hadDestination) map.easeTo({ center: toLngLat(center), zoom, duration: 400 });
       return;
     }
     const el = markerElement(`<div class="map-dest">
@@ -290,8 +354,8 @@ export function TransitMap(props: Props) {
     if (currentLabelRef.current) currentLabelRef.current.textContent = t.currentLocation;
     if (destinationRef.current) destinationRef.current.label.textContent = t.mapArrive;
     for (const v of vehiclesRef.current) {
-      const label = vehicleLabelRefs.current.get(v.id);
-      if (label) label.textContent = vehicleLabel(v, t);
+      const marker = vehicleMarkersRef.current.get(v.id);
+      if (marker) marker.label.textContent = vehicleLabel(v, t);
     }
   }, [lang, t]);
 
@@ -308,7 +372,7 @@ export function TransitMap(props: Props) {
         </button>
         <button
           aria-label={t.currentLocation}
-          onClick={() => mapRef.current?.flyTo({ center: toLngLat(center), zoom: DEFAULT_ZOOM, duration: 600 })}
+          onClick={() => mapRef.current?.flyTo({ center: toLngLat(center), zoom, duration: 600 })}
         >
           <Asset name="map/locate" width={33} height={33} className="map-ctrl__locate" />
         </button>
